@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{lmodern}
+\usepackage[final]{microtype}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % czyść wszystko
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{siunitx} % jeżeli potrzebne jednostki
+\sisetup{locale = DE} % separator 1,23 (polski), można zmienić na locale=PL gdy dostępne
+\usepackage{bm}       % pogrubione symbole
+
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\usepackage{csquotes}
+
+\usepackage{enumitem}
+\setlist{noitemsep,topsep=3pt}
+\usepackage{xcolor}
+
+\numberwithin{equation}{section}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% --- Meta ---
+\title{Zadanie 5. -- Lista 1.}
+\author{Jakub Kogut}
+\date{\today}
+
+\begin{document}
+\maketitle
+\section{Wprowadzenie}
+Do rozwiązania zadania będę wykorzystywał następujące definicje i twierdzenia podane na wykładzie.\\
+Niech $L$ $L_1$ i $L_2$ będą językami nad alfabetem $\Sigma$. Wtedy:
+\begin{equation}
+    L_1L_2 = \left{ xy: x \in L_1, y \in L_2 \right}
+\end{equation}
+\begin{equation}
+    L^0 = \left{ \varepsilon \right}
+\end{equation}
+\begin{equation}
+    L^{i+1} = LL^i \quad \text{dla } i > 0
+\end{equation}
+\begin{equation}
+    L^* = \bigcup_{i=0}^{\infty} L^i
+\end{equation}
+Jeżeli $r$ i $s$ są wyrażeniami regularnymi reoprezentującymi języki $L(r)$ i $L(s)$, to:
+\begin{itemize}
+    \item $r + s$ jest wyrażeniem regularnym reprezentującym język $L(r) \cup L(s)$,
+    \item $rs$ jest wyrażeniem regularnym reprezentującym język $L(r)L(s)$,
+    \item $r^*$ jest wyrażeniem regularnym reprezentującym język $L(r)^*$.
+\end{itemize}
+
+\section{Zadanie 5.}
+Należy udowodnić następujące tożsamości dla wyrażeń regularnych $r$, $s$ i $t$, przy czym $r=s$ oznacza, że $L(r) = L(s)$.
+\begin{enumerate}
+    \item
+        \begin{equation}
+            \begin{aligned}
+                (r+s)+t &= (L(r)\cup L(s))\cup L(t) \\
+                        &= L(r)\cup\bigl(L(s)\cup L(t)\bigr) \\
+                        &= r + (s+t)
+            \end{aligned}
+        \end{equation}
+    \item
+        \begin{equation}
+            \begin{aligned}
+                (rs)t &= (L(r)L(s))L(t) \\
+                        &= \left\{ xy: x \in L(r)L(s), y \in L(t) \right\} \\
+                        &= \left\{ xy: \left( x \in L(r), y \in L(s)\right), y \in L(t) \right\} \\
+                        &= \left\{ xy: x \in L(r), y \in L(s)L(t) \right\} \\
+                        &= L(r)(L(s)L(t)) \\
+                        &= r(st)
+            \end{aligned}
+        \end{equation}
+    \item
+        \begin{equation}
+            \begin{aligned}
+                (r+s) t &= (L(r)\cup L(s))\,L(t) \\
+                        &= \left\{ xy: x \in L(r)\cup L(s), y \in L(t) \right\} \\
+                        &= \left\{ xy: \left( x \in L(r), y \in L(t)\right) \wedge \left( x \in L(s), y \in L(t)\right) \right\} \\
+                        &= \left\{ xy: x \in L(r), y \in L(t)\right\} \cup \left{ xy: x \in L(s), y \in L(t)\right\} \\
+                        &= L(r)L(t) \cup L(s)L(t) \\
+                        &= rt + st
+            \end{aligned}
+        \end{equation}
+    \item
+        \begin{equation}
+            \begin{aligned}
+                r(s +t ) &= L(r)(L(s)\cup L(t)) \\
+                        &= \left\{ xy: x \in L(r), y \in L(s)\cup L(t) \right\} \\
+                        &= \left\{ xy: \left( x \in L(r), y \in L(s)\right) \wedge \left( x \in L(r), y \in L(t)\right) \right\} \\
+                        &= \left\{ xy: x \in L(r), y \in L(s)\right\} \cup \left{ xy: x \in L(r), y \in L(t)\right\} \\
+                        &= L(r)L(s) \cup L(r)L(t) \\
+                        &= rs + rt
+            \end{aligned}
+        \end{equation}
+    \item Kożystając z definicji otoczki Kleenego:
+        \begin{equation}
+            \begin{aligned}
+                \emptyset^* &= \bigcup_{i=0}^{\infty} \emptyset^i \\
+                        &= \emptyset^0 \cup \bigcup_{i=1}^{\infty} \emptyset^i \\
+                        &= \left\{ \varepsilon \right\} \cup \emptyset \\
+                        &= \left\{ \varepsilon \right\} \\
+                        &= \varepsilon
+            \end{aligned}
+        \end{equation}
+    \item
+        \begin{equation}
+            \begin{aligned}
+                (r^*)^* &= \left( \bigcup_{i=0}^{\infty} L(r)^i \right)^* \\
+                        &= \bigcup_{j=0}^{\infty} \left( \bigcup_{i=0}^{\infty} L(r)^i \right)^j \\
+                        &= \bigcup_{j=0}^{\infty} \left( L(r)^0 \cup L(r)^1 \cup L(r)^2 \cup \ldots \right)^j \\
+                        &= \bigcup_{j=0}^{\infty} \left( L(r)^0 L(r)^0 \ldots L(r)^0 \cup L(r)^1 L(r)^0 \ldots L(r)^0 \cup \ldots \right. \\
+                        &\quad \left. \cup L(r)^i L(r)^k \ldots L(r)^m \cup \ldots \right) \\
+                        &= \bigcup_{j=0}^{\infty} L(r)^0 \cup L(r)^1 \cup L(r)^2 \cup \ldots \\
+                        &= r^*
+            \end{aligned}
+        \end{equation}
+    \item 
+        \begin{equation}
+            \begin{aligned}
+                r^*s^* &= \left( \bigcup_{i=0}^{\infty} L(r)^i \right) \left( \bigcup_{j=0}^{\infty} L(s)^j \right) \\
+                        &= \bigcup_{i=0}^{\infty} \bigcup_{j=0}^{\infty} L(r)^i L(s)^j \\
+                        &= \bigcup_{k=0}^{\infty} \left( L(r)^0 L(s)^k \cup L(r)^1 L(s)^{k-1} \cup \ldots \cup L(r)^k L(s)^0 \right) \\
+                        &= (r+s)^*
+            \end{aligned}
+        \end{equation}
+\end{enumerate}
+\end{document}
+
