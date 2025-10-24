@@ -63,6 +63,7 @@ Jeżeli $r$ i $s$ są wyrażeniami regularnymi reoprezentującymi języki $L(r)$
 Należy udowodnić następujące tożsamości dla wyrażeń regularnych $r$, $s$ i $t$, przy czym $r=s$ oznacza, że $L(r) = L(s)$.
 \begin{enumerate}
     \item
+        Kożystając z łączności sumy zbiorów mamy:
         \begin{equation}
             \begin{aligned}
                 (r+s)+t &= (L(r)\cup L(s))\cup L(t) \\
@@ -70,29 +71,30 @@ Należy udowodnić następujące tożsamości dla wyrażeń regularnych $r$, $s$
                         &= r + (s+t)
             \end{aligned}
         \end{equation}
-    \item
+    \item Z definicji konkatenacji oraz łączności konunkcji:
         \begin{equation}
             \begin{aligned}
                 (rs)t &= (L(r)L(s))L(t) \\
-                        &= \left\{ xy: x \in L(r)L(s), y \in L(t) \right\} \\
-                        &= \left\{ xy: \left( x \in L(r), y \in L(s)\right), y \in L(t) \right\} \\
-                        &= \left\{ xy: x \in L(r), y \in L(s)L(t) \right\} \\
+                        &= \left\{ xyz: xy \in L(r)L(s), z \in L(t) \right\} \\
+                        &= \left\{ xyz: \left( x \in L(r), y \in L(s) \right) \wedge \left( z \in L(t) \right) \right\} \\
+                        &= \left\{ xyz: x \in L(r), \left( y \in L(s), z \in L(t) \right) \right\} \\
+                        &= \left\{ xyz: x \in L(r), yz \in L(s)L(t) \right\} \\
                         &= L(r)(L(s)L(t)) \\
                         &= r(st)
             \end{aligned}
         \end{equation}
-    \item
+    \item Kożystając z rozdzielności konkatenacji względem alternatywy otrzymujemy:
         \begin{equation}
             \begin{aligned}
                 (r+s) t &= (L(r)\cup L(s))\,L(t) \\
                         &= \left\{ xy: x \in L(r)\cup L(s), y \in L(t) \right\} \\
                         &= \left\{ xy: \left( x \in L(r), y \in L(t)\right) \wedge \left( x \in L(s), y \in L(t)\right) \right\} \\
-                        &= \left\{ xy: x \in L(r), y \in L(t)\right\} \cup \left{ xy: x \in L(s), y \in L(t)\right\} \\
+                        &= \left\{ xy: x \in L(r), y \in L(t)\right\} \cup \left\{ xy: x \in L(s), y \in L(t)\right\} \\
                         &= L(r)L(t) \cup L(s)L(t) \\
                         &= rt + st
             \end{aligned}
         \end{equation}
-    \item
+    \item Analogicznie do poprzedniego:
         \begin{equation}
             \begin{aligned}
                 r(s +t ) &= L(r)(L(s)\cup L(t)) \\
@@ -114,26 +116,57 @@ Należy udowodnić następujące tożsamości dla wyrażeń regularnych $r$, $s$
             \end{aligned}
         \end{equation}
     \item
-        \begin{equation}
-            \begin{aligned}
-                (r^*)^* &= \left( \bigcup_{i=0}^{\infty} L(r)^i \right)^* \\
-                        &= \bigcup_{j=0}^{\infty} \left( \bigcup_{i=0}^{\infty} L(r)^i \right)^j \\
-                        &= \bigcup_{j=0}^{\infty} \left( L(r)^0 \cup L(r)^1 \cup L(r)^2 \cup \ldots \right)^j \\
-                        &= \bigcup_{j=0}^{\infty} \left( L(r)^0 L(r)^0 \ldots L(r)^0 \cup L(r)^1 L(r)^0 \ldots L(r)^0 \cup \ldots \right. \\
-                        &\quad \left. \cup L(r)^i L(r)^k \ldots L(r)^m \cup \ldots \right) \\
-                        &= \bigcup_{j=0}^{\infty} L(r)^0 \cup L(r)^1 \cup L(r)^2 \cup \ldots \\
-                        &= r^*
-            \end{aligned}
-        \end{equation}
-    \item 
-        \begin{equation}
-            \begin{aligned}
-                r^*s^* &= \left( \bigcup_{i=0}^{\infty} L(r)^i \right) \left( \bigcup_{j=0}^{\infty} L(s)^j \right) \\
-                        &= \bigcup_{i=0}^{\infty} \bigcup_{j=0}^{\infty} L(r)^i L(s)^j \\
-                        &= \bigcup_{k=0}^{\infty} \left( L(r)^0 L(s)^k \cup L(r)^1 L(s)^{k-1} \cup \ldots \cup L(r)^k L(s)^0 \right) \\
-                        &= (r+s)^*
-            \end{aligned}
-        \end{equation}
+        Można udowodnić tożsamość $(r^*)^* = r^*$, poprzez pokazanie inkluzji w obie strony. Przyjmuje, że $L(r) = L$.
+        \begin{enumerate}
+            \item $L^* \subseteq (L^*)^*$\\
+                Wynika to wprost z definicji:
+                \[
+                    L^* = (L^*)^1 \subseteq (L^*)^1 \cup \bigcup_{i=1}^{\infty} (L^*)^i  = \bigcup_{i=0}(L^*)^i = (L^*)^*
+                \]
+            \item $(L^*)^* \subseteq L^*$\\
+                Niech $w \in (L^*)^*$. Z definicji otoczki Kleenego istnieje takie $k \geq 0$ oraz $u_1, u_2, \ldots, u_k \in L^*$ takie, że
+                \[
+                    w = u_1 u_2 \ldots u_k
+                \]
+                Natomiast każde $u_i$ można rozpisać jako
+                \[
+                    u_i = v_{i,1} v_{i,2} \dots v_{i,n_i}
+                \]
+                gdzie $n_i \geq 0$ oraz $v_{i,j} \in L$ dla $1 \leq j \leq n_i$. Zatem $w$ ma postać:
+                \[
+                    w = (v_{1,1} v_{1,2} \dots v_{1,n_1}) (v_{2,1} v_{2,2} \dots v_{2,n_2}) \ldots (v_{k,1} v_{k,2} \dots v_{k,n_k})
+                \]
+                Czyli $w$ jest konkatenacją skończonej liczby słów należących do $L$, a więc $w \in L^*$. Stąd $(L^*)^* \subseteq L^*$.
+        \end{enumerate}
+        A skoro obie inkluzje zachodzą, to $L^* = (L^*)^*$, czyli $(r^*)^* = r^*$.
+    \item Podobnie jak powyższą tożsamość, $\big(r^* s^*\big)^* = (r+s)^*$ też można udowodnić przez inkluzję:
+        \begin{enumerate}
+            \item $(R^*S^*)^* \subseteq (R+S)^*$\\
+                Niech $w \in (R^*S^*)^*$. Z definicji otoczki Kleenego istnieje $k \ge 0$ oraz $u_1,\dots,u_k \in R^*S^*$ takie, że
+                \[
+                    w = u_1 u_2 \dots u_k.
+                \]
+                Każdy $u_i$ ma postać $x_i y_i$ z $x_i \in R^*$ oraz $y_i \in S^*$. Dalej, z definicji:
+                \[
+                    x_i = r_{i,1} r_{i,2} \dots r_{i,p_i}\quad (p_i\ge 0,\ r_{i,j}\in R),
+                \]
+                \[
+                    y_i = s_{i,1} s_{i,2} \dots s_{i,q_i}\quad (q_i\ge 0,\ s_{i,j}\in S).
+                \]
+                Zatem $w$ jest skończoną konkatenacją słów, z których każde należy do $R$ albo do $S$, czyli $w \in (R+S)^*$. Stąd $(R^*S^*)^* \subseteq (R+S)^*$.
+
+            \item $(R+S)^* \subseteq (R^*S^*)^*$\\
+                Niech $w \in (R+S)^*$. Wówczas istnieje $m \ge 0$ oraz $t_1,\dots,t_m \in R\cup S$ takie, że
+                \[
+                    w = t_1 t_2 \dots t_m.
+                \]
+                Zgrupujmy maksymalne kolejne bloki elementów z $R$ oraz z $S$. Otrzymujemy rozkład
+                \[
+                    w = (R\cdots R)(S\cdots S)(R\cdots R)\cdots(S\cdots S),
+                \]
+                gdzie każdy blok $R\cdots R$ należy do $R^*$, a każdy blok $S\cdots S$ do $S^*$. Zatem $w$ jest konkatenacją skończonej liczby elementów z $R^*S^*$, czyli $w \in (R^*S^*)^*$. Stąd $(R+S)^* \subseteq (R^*S^*)^*$.
+        \end{enumerate}
+        Z obu inkluzji otrzymujemy równość $\big(r^* s^*\big)^* = (r+s)^*$.
 \end{enumerate}
 \end{document}
 
