@@ -451,9 +451,10 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "rpn_calc.l"
+#line 1 "zadanie4.l"
 #define YY_NO_INPUT 1
-#line 5 "rpn_calc.l"
+#line 5 "zadanie4.l"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -464,9 +465,9 @@ char *yytext;
 static long long st[STACK_MAX];
 static int sp = 0;
 
-static int had_token = 0;        /* czy w bieżącej linii były tokeny */
-static int err_flag  = 0;        /* czy wystąpił błąd */
-static char err_msg[256];        /* komunikat błędu */
+static int had_token = 0; 
+static int err_flag  = 0;
+static char err_msg[256];
 
 static void reset_line(void) {
     sp = 0;
@@ -495,35 +496,9 @@ static int pop2(long long *a, long long *b) {
     return 1;
 }
 
-static int safe_pow(long long base, long long exp, long long *out) {
-    if (exp < 0) {
-        snprintf(err_msg, sizeof(err_msg), "Błąd: ujemny wykładnik potęgi");
-        return 0;
-    }
-    long long res = 1;
-    while (exp) {
-        if (exp & 1) {
-            if (base != 0 && llabs(res) > LLONG_MAX / llabs(base)) {
-                snprintf(err_msg, sizeof(err_msg), "Błąd: przepełnienie (potęgowanie)");
-                return 0;
-            }
-            res *= base;
-        }
-        exp >>= 1;
-        if (exp) {
-            if (llabs(base) > 0 && llabs(base) > LLONG_MAX / llabs(base)) {
-                snprintf(err_msg, sizeof(err_msg), "Błąd: przepełnienie (potęgowanie)");
-                return 0;
-            }
-            base *= base;
-        }
-    }
-    *out = res;
-    return 1;
-}
-#line 524 "lex.yy.c"
+#line 499 "lex.yy.c"
 
-#line 526 "lex.yy.c"
+#line 501 "lex.yy.c"
 
 #define INITIAL 0
 #define DISCARD 1
@@ -739,10 +714,10 @@ YY_DECL
 		}
 
 	{
-#line 76 "rpn_calc.l"
+#line 51 "zadanie4.l"
 
 
-#line 745 "lex.yy.c"
+#line 720 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -801,7 +776,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 78 "rpn_calc.l"
+#line 53 "zadanie4.l"
 {
                  if (!err_flag) {
                      long long v = strtoll(yytext, NULL, 10);
@@ -812,43 +787,96 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 86 "rpn_calc.l"
-{ if (!err_flag) { long long a,b; if (pop2(&a,&b)) push(a+b); had_token=1; } }
+#line 61 "zadanie4.l"
+{ 
+                if (!err_flag) {
+                    long long a,b;
+                    if (pop2(&a,&b))
+                        push(a+b);
+                    had_token=1; }
+              }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 87 "rpn_calc.l"
-{ if (!err_flag) { long long a,b; if (pop2(&a,&b)) push(a-b); had_token=1; } }
+#line 68 "zadanie4.l"
+{ 
+                if (!err_flag)
+                    { long long a,b;
+                    if (pop2(&a,&b))
+                        push(a-b);
+                    had_token=1; 
+                    } 
+              }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 88 "rpn_calc.l"
-{ if (!err_flag) { long long a,b; if (pop2(&a,&b)) push(a*b); had_token=1; } }
+#line 76 "zadanie4.l"
+{
+                if (!err_flag){ 
+                    long long a,b; 
+                    if (pop2(&a,&b)) 
+                        push(a*b);
+                        had_token=1;
+                }
+              }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 89 "rpn_calc.l"
-{ if (!err_flag) { long long a,b; if (pop2(&a,&b)) { if (b==0){err_flag=1;snprintf(err_msg,sizeof(err_msg),"Błąd: dzielenie przez zero");} else push(a/b);} had_token=1; } }
+#line 84 "zadanie4.l"
+{ 
+                if (!err_flag){
+                    long long a,b;
+                    if (pop2(&a,&b)){ 
+                        if (b==0){
+                            err_flag=1;
+                            snprintf(err_msg,sizeof(err_msg),"Błąd: dzielenie przez zero");
+                        } else 
+                        push(a/b);
+                    } 
+                    had_token=1; 
+                } 
+              }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 90 "rpn_calc.l"
-{ if (!err_flag) { long long a,b; if (pop2(&a,&b)) { if (b==0){err_flag=1;snprintf(err_msg,sizeof(err_msg),"Błąd: modulo przez zero");} else push(a%b);} had_token=1; } }
+#line 97 "zadanie4.l"
+{ 
+                if (!err_flag) {
+                    long long a,b;
+                    if (pop2(&a,&b)) {
+                        if (b==0){
+                            err_flag=1;
+                            snprintf(err_msg,sizeof(err_msg),"Błąd: modulo przez zero");
+                        } else push(a%b);
+                    }
+                    had_token=1;
+                } 
+              }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 91 "rpn_calc.l"
-{ if (!err_flag) { long long a,b,r; if (pop2(&a,&b)) { if (!safe_pow(a,b,&r)) err_flag=1; else push(r);} had_token=1; } }
+#line 109 "zadanie4.l"
+{ 
+                if (!err_flag) { 
+                    long long a,b;
+                    pop2(&a,&b);
+                    if(b<0){
+                        snprintf(err_msg, sizeof(err_msg), "Bład: ujemna potega");
+                    }
+                    push((long long)pow((double)a,(double)b));
+                    had_token=1; 
+                } 
+             }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 93 "rpn_calc.l"
-{ /* ignore */ }
+#line 120 "zadanie4.l"
+{ /*ignore*/ }
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 95 "rpn_calc.l"
+#line 121 "zadanie4.l"
 {
                  if (err_flag) {
                      printf("%s\n", err_msg);
@@ -861,7 +889,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 105 "rpn_calc.l"
+#line 131 "zadanie4.l"
 {
                  if (!err_flag) {
                      char bad[8] = {0};
@@ -877,13 +905,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 118 "rpn_calc.l"
-{ /* ignore */ }
+#line 144 "zadanie4.l"
+{ /*ignore*/ }
 	YY_BREAK
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 119 "rpn_calc.l"
+#line 145 "zadanie4.l"
 {
                      printf("%s\n", err_msg);
                      reset_line();
@@ -892,23 +920,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(DISCARD):
-#line 125 "rpn_calc.l"
+#line 151 "zadanie4.l"
 {
-                 if (err_flag) {
-                     printf("%s\n", err_msg);
-                 } else if (had_token) {
-                     if (sp == 1) printf("= %lld\n", st[0]);
-                     else         printf("Błąd: za mała liczba operatorów\n");
-                 }
-                 return 0;
-              }
+                     if (err_flag) {
+                         printf("%s\n", err_msg);
+                     } else if (had_token) {
+                         if (sp == 1) printf("= %lld\n", st[0]);
+                         else         printf("Błąd: za mała liczba operatorów\n");
+                     }
+                     return 0;
+                  }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 135 "rpn_calc.l"
+#line 161 "zadanie4.l"
 ECHO;
 	YY_BREAK
-#line 911 "lex.yy.c"
+#line 939 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1874,7 +1902,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 135 "rpn_calc.l"
+#line 161 "zadanie4.l"
 
 
 int main(void) {
