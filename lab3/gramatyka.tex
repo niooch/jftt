@@ -1,0 +1,133 @@
+% !TeX program = pdflatex
+\documentclass[11pt,a4paper]{article}
+
+% --- Język i czcionki ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{lmodern}
+\usepackage[final]{microtype}
+
+% --- Układ strony i nagłówki/stopki ---
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % czyść wszystko
+\lhead{Notatki z matematyki}
+\rhead{\leftmark}
+\cfoot{\thepage}
+
+% --- Matematyka ---
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{siunitx} % jeżeli potrzebne jednostki
+\sisetup{locale = PL} % separator 1,23 (polski), można zmienić na locale=PL gdy dostępne
+\usepackage{bm}       % pogrubione symbole
+
+% --- Odsyłacze i tytuły ---
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,capitalise,noabbrev]{cleveref}
+\usepackage{csquotes}
+
+% --- Listy i drobiazgi ---
+\usepackage{enumitem}
+\setlist{noitemsep,topsep=3pt}
+\usepackage{xcolor}
+
+% --- Środowiska twierdzeń po polsku ---
+\newtheoremstyle{polski}% name
+  {6pt}{6pt}% space above/below
+  {\itshape}% body font
+  {}% indent
+  {\bfseries}% head font
+  {.}% punctuation
+  {0.5em}% spacing after head
+  {}% head spec
+\theoremstyle{polski}
+\newtheorem{tw}{Twierdzenie}[section]
+\newtheorem{lem}[tw]{Lemat}
+\newtheorem{wniosek}[tw]{Wniosek}
+
+\newtheoremstyle{polski-def}
+  {6pt}{6pt}{\normalfont}{}{\bfseries}{.}{0.5em}{}
+\theoremstyle{polski-def}
+\newtheorem{defi}[tw]{Definicja}
+\newtheorem{przyklad}[tw]{Przykład}
+\newtheorem{uwaga}[tw]{Uwaga}
+
+% --- Nazwy do cleveref po polsku ---
+\crefname{tw}{twierdzenie}{twierdzenia}
+\Crefname{tw}{Twierdzenie}{Twierdzenia}
+\crefname{lem}{lemat}{lematy}
+\Crefname{lem}{Lemat}{Lematy}
+\crefname{wniosek}{wniosek}{wnioski}
+\Crefname{wniosek}{Wniosek}{Wnioski}
+\crefname{defi}{definicja}{definicje}
+\Crefname{defi}{Definicja}{Definicje}
+\crefname{przyklad}{przykład}{przykłady}
+\Crefname{przyklad}{Przykład}{Przykłady}
+\crefname{uwaga}{uwaga}{uwagi}
+\Crefname{uwaga}{Uwaga}{Uwagi}
+\crefname{equation}{równanie}{równania}
+\Crefname{equation}{Równanie}{Równania}
+\crefname{section}{sekcja}{sekcje}
+\Crefname{section}{Sekcja}{Sekcje}
+
+% --- Szybkie skróty ---
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbb{E}}
+
+% --- Numeracja i wygląd sekcji ---
+\numberwithin{equation}{section}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% --- Meta ---
+\title{Gramatyka listy 3.}
+\author{Jakub Kogut}
+\date{\today}
+
+\begin{document}
+\maketitle
+Na liscie 3. pojawia się konieczność zkonstruowania gramatyki bezkontekstowej aby móc napisać parser dla translatora wyrażeń arytmetycznych w ciele $GF(1234577)$ z postaci infinksowej do postaci postfiksowej \texit{(RPN)}.
+\section{Gramatyka bezkontekstowa}
+Niech $G$ -- gramatyka bezkontekstowa zdefiniowana jako $G = (N, T, P, S)$ gdzie:
+\begin{itemize}
+    \item $N = \{input, line, expr, sum, prod, unary, power, atom, EOF, EOF\}$
+        \begin{itemize}
+            \item EOL -- znak końca linii
+            \item EOF -- znak końca pliku
+        \end{itemize}
+    \item $T = \{NUM, PLUS, MINUS, MUL, DIV, POW, LPAR, RPAR\}$, gdzie:
+        \begin{itemize}
+            \item $NUM$ jest ciągiem cyfr reprezentujących liczby w ciele $GF(1234577)$, \texttt{[0-9]+}
+            \item $PLUS$ -- znak dodawania +
+            \item $MINUS$ -- znak odejmowania -
+            \item $MUL$ -- znak mnożenia *
+            \item $DIV$ -- znak dzielenia /
+            \item $POW$ -- znak potęgowania $\wedge$
+            \item $LPAR$ -- lewy nawias (
+            \item $RPAR$ -- prawy nawias )
+        \end{itemize}
+        tyle nieterminali jest konieczne ze względu na priorytety działań oraz konieczność obsługi liczb ujemnych (\textit{unary}).
+    \item $P$ -- zbiór produkcji:
+    \begin{itemize}
+        \item $input \to line\ EOF$
+        \item $line \to expr\ EOL$
+        \item $expr \to sum$
+        \item $sum \to sum\ PLUS\ prod$ | $sum\ MINUS\ prod$ | $prod$
+        \item $prod \to prod\ MUL\ unary$ | $prod\ DIV\ unary$ | $unary$
+        \item $unary \to MINUS\ power$ | $power$
+        \item $power \to atom\ POW\ unary$ | $atom$
+        \item $atom \to NUM$ | $LPAR\ expr\ RPAR$
+    \end{itemize}
+    \item $S = input$
+\end{itemize}
+
+\end{document}
+
