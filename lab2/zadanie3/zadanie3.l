@@ -16,10 +16,23 @@ bool print_doc = false;
 <INITIAL>{
     "//" BEGIN(LINE_COMMENT);
     "/*" BEGIN(BLOCK_COMMENT);
-    "/**/" {/*ignoruj pusty comment, aby nie mylic z doc commentem*/}
-    "/**"|"/\\*!" { if (print_doc) ECHO; BEGIN(DOC_BLOCK_COMMENT); }
-    "///"|"//!" { if (print_doc) { yyless(1); ECHO; } else { BEGIN(LINE_COMMENT); } }
-    \" { ECHO; BEGIN(IN_STRING); }
+    "/**/" { printf(" "); }
+    "/**"|"/\\*!" {
+        if (print_doc)
+            ECHO;
+        BEGIN(DOC_BLOCK_COMMENT); 
+    }
+    "///"|"//!" { 
+        if (print_doc)
+            ECHO;
+        else { 
+            BEGIN(LINE_COMMENT); 
+        } 
+    }
+    \" {
+        ECHO;
+        BEGIN(IN_STRING);
+    }
     .|\n ECHO;
 }
 <IN_STRING>{

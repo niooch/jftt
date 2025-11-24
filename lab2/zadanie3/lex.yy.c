@@ -778,56 +778,69 @@ BEGIN(BLOCK_COMMENT);
 case 4:
 YY_RULE_SETUP
 #line 19 "zadanie3.l"
-{/*ignoruj pusty comment, aby nie mylic z doc commentem*/}
+{ printf(" "); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 20 "zadanie3.l"
-{ if (print_doc) ECHO; BEGIN(DOC_BLOCK_COMMENT); }
+{
+        if (print_doc)
+            ECHO;
+        BEGIN(DOC_BLOCK_COMMENT); 
+    }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 21 "zadanie3.l"
-{ if (print_doc) { yyless(1); ECHO; } else { BEGIN(LINE_COMMENT); } }
+#line 25 "zadanie3.l"
+{ 
+        if (print_doc)
+            ECHO;
+        else { 
+            BEGIN(LINE_COMMENT); 
+        } 
+    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 22 "zadanie3.l"
-{ ECHO; BEGIN(IN_STRING); }
+#line 32 "zadanie3.l"
+{
+        ECHO;
+        BEGIN(IN_STRING);
+    }
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 23 "zadanie3.l"
+#line 36 "zadanie3.l"
 ECHO;
 	YY_BREAK
 
 
 case 9:
 YY_RULE_SETUP
-#line 26 "zadanie3.l"
+#line 39 "zadanie3.l"
 { ECHO; BEGIN(INITIAL); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 27 "zadanie3.l"
+#line 40 "zadanie3.l"
 ECHO; 
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 28 "zadanie3.l"
+#line 41 "zadanie3.l"
 ECHO;
 	YY_BREAK
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 29 "zadanie3.l"
+#line 42 "zadanie3.l"
 ECHO;
 	YY_BREAK
 case 13:
 /* rule 13 can match eol */
 YY_RULE_SETUP
-#line 30 "zadanie3.l"
+#line 43 "zadanie3.l"
 ECHO;
 	YY_BREAK
 
@@ -835,53 +848,53 @@ ECHO;
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 33 "zadanie3.l"
+#line 46 "zadanie3.l"
 
 	YY_BREAK
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 34 "zadanie3.l"
+#line 47 "zadanie3.l"
 { BEGIN(INITIAL); printf("\n"); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 35 "zadanie3.l"
+#line 48 "zadanie3.l"
 
 	YY_BREAK
 
 
 case 17:
 YY_RULE_SETUP
-#line 38 "zadanie3.l"
+#line 51 "zadanie3.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 18:
 /* rule 18 can match eol */
 YY_RULE_SETUP
-#line 39 "zadanie3.l"
+#line 52 "zadanie3.l"
 
 	YY_BREAK
 
 
 case 19:
 YY_RULE_SETUP
-#line 42 "zadanie3.l"
+#line 55 "zadanie3.l"
 { if (print_doc) ECHO; BEGIN(INITIAL); }
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 43 "zadanie3.l"
+#line 56 "zadanie3.l"
 { if (print_doc) ECHO; }
 	YY_BREAK
 
 case 21:
 YY_RULE_SETUP
-#line 45 "zadanie3.l"
+#line 58 "zadanie3.l"
 ECHO;
 	YY_BREAK
-#line 884 "lex.yy.c"
+#line 897 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IN_STRING):
 case YY_STATE_EOF(LINE_COMMENT):
@@ -1890,7 +1903,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 45 "zadanie3.l"
+#line 58 "zadanie3.l"
 
 
 int main(int argc, char* argv[]){
