@@ -1,22 +1,44 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cialo.h"
+
 extern int yylex(void);
-extern int yyparse(void);
 int yyerror(char const* s);
 
-char* resultRPN = "\0"; //wynik w notacji odwrotnej polskiej
-char* errorMess = "\0"; //komunikat o bledzie
+#define RPN_BUF 1024
+#define ERR_BUF 256
+
+static char resultRPN[RPN_BUF] = "";
+static char errorMess[ERR_BUF] = "";
+
+static void rpn_append(const char *s) {
+    size_t len = strlen(resultRPN);
+    size_t add = strlen(s);
+    if (len + add + 1 >= RPN_BUF) {
+        return;
+    }
+    strcat(resultRPN, s);
+}
+
+static void rpn_append_num(long long v) {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%lld ", v);
+    rpn_append(buf);
+}
+
+static const long long SHIFT = 0;
+
 %}
 
 %union {
     long long int num;
 }
 
-%type <num> NUM
+%token <num> NUM
 %token ADD SUB MUL DIV POW
 %token EOL
-%token SYNTAX_ERR
 
 %left ADD SUB
 %left MUL DIV
@@ -28,117 +50,197 @@ char* errorMess = "\0"; //komunikat o bledzie
 
 %%
 
+
 input:
-    %empty                  { 
-                                printf(">> ");
-                            }
     | input line
     ;
 
 line:
-    EOL                     {
-                                printf(">> "); 
+      EOL                   {
+                                printf(">> ");
                             }
-    | expr EOL              {
-                                printf("|-> RPN   %s\n", resultRPN);    //zapisz RPN
-                                printf("\\->Wynik: %lld\n", $1);        //zapisz wynik
+    | expr EOL
+                            {
+                                long long res = cMod($1, SHIFT);
+
+                                printf("|-> RPN   %s\n", resultRPN);
+                                printf("\\-> Wynik: %lld\n", res);
                                 printf(">> ");
 
-                                strncpy(resultRPN, "\0", 1);            //reset RPN
+                                resultRPN[0] = '\0';   
+                                errorMess[0] = '\0';   
                             }
-    | error EOL             {
-                                if(strcmp(errorMess, "\0") == 0) {
-                                    strcpy(errorMess, "Błąd składniowy\n", 20);
+    | error EOL
+                            {
+                                if (errorMess[0] == '\0') {
+                                    snprintf(errorMess, ERR_BUF, "Błąd składniowy");
                                 }
-                                printf("ERROR: %s\n", errorMess); //zapisz błąd
+                                printf("ERROR: %s\n", errorMess);
                                 printf(">> ");
 
-                                strncpy(errorMess, "\0", 1);           //reset błędu
-                                strncpy(resultRPN, "\0", 1);            //reset RPN
+                                resultRPN[0] = '\0';
+                                errorMess[0] = '\0';
+                                yyerrok;
                             }
     ;
+
 
 expr:
-    expr ADD term           {
-                                $$ = $1 + $3;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s +", resultRPN, $3_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
+      expr ADD term
+                            {
+                                $$ = cAdd($1, $3, SHIFT);
+                                rpn_append("+ ");
                             }
-    | expr SUB term         {
-                                $$ = $1 - $3;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s -", resultRPN, $3_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
+    | expr SUB term
+                            {
+                                $$ = cSub($1, $3, SHIFT);
+                                rpn_append("- ");
                             }
-    | term                  { $$ = $1; }
+    | term
+                            {
+                                $$ = $1;
+                            }
     ;
 
+
 term:
-    term MUL power          {
-                                $$ = $1 * $3;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s *", resultRPN, $3_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
+      term MUL power
+                            {
+                                $$ = cMul($1, $3, SHIFT);
+                                rpn_append("* ");
                             }
-    | term DIV power        {
-                                if($3 == 0) {
-                                    strcpy(errorMess, "Błąd: dzielenie przez zero\n", 30);
+    | term DIV power
+                            {
+                                if (cMod($3, SHIFT) == 0) {
+                                    snprintf(errorMess, ERR_BUF, "Błąd: dzielenie przez zero");
                                     YYABORT;
                                 }
-                                $$ = $1 / $3;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s /", resultRPN, $3_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
+                                $$ = cDiv($1, $3, SHIFT);
+                                rpn_append("/ ");
                             }
-    | power                 { $$ = $1; }
-    ;
-power:
-    unary POW power         {
-                                $$ = 1;
-                                for(long long int i = 0; i < $3; i++) {
-                                    $$ *= $1;
-                                }
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s ^", resultRPN, $3_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
-                            }
-    | unary                 { $$ = $1; }
-    ;
-unary:
-    SUB unary %prec UMINUS  {
-                                $$ = -$2;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %s neg", resultRPN, $2_str);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
-                            }
-    | atom                  { $$ = $1; }
-    ;
-atom:
-    NUM                     { 
+    | power
+                            {
                                 $$ = $1;
-                                char buffer[50];
-                                snprintf(buffer, 50, "%s %lld", resultRPN, $1);
-                                strncpy(resultRPN, buffer, sizeof(buffer));
                             }
-    | '(' expr ')'          { $$ = $2; }
     ;
+
+
+power:
+      unary
+                            {
+                                $$ = $1;
+                            }
+    | unary POW expNoPow
+                            {
+                                long long base = cMod($1, SHIFT);
+                                long long exp  = cMod($3, SHIFT);
+
+                                $$ = cPow(base, exp, SHIFT);
+                                rpn_append("^ ");
+                            }
+    ;
+
+
+unary:
+      SUB unary %prec UMINUS
+                            {
+                                $$ = cSub(0, $2, SHIFT);
+                                rpn_append("neg ");
+                            }
+    | atom
+        {
+            $$ = $1;
+        }
+    ;
+
+
+atom:
+      NUM
+                            {
+                                $$ = cMod($1, SHIFT);
+                                rpn_append_num($$);
+                            }
+    | '(' expr ')'
+                            {
+                                $$ = $2;
+                            }
+    ;
+
+
+expNoPow:
+      expTerm
+                            {
+                                $$ = $1;
+                            }
+    | expNoPow ADD expTerm
+                            {
+                                $$ = cAdd($1, $3, SHIFT-1);
+                                rpn_append("+ ");
+                            }
+    | expNoPow SUB expTerm
+                            {
+                                $$ = cSub($1, $3, SHIFT-1);
+                                rpn_append("- ");
+                            }
+    ;
+
+expTerm:
+      expUnary
+                            {
+                                $$ = $1;
+                            }
+    | expTerm MUL expUnary
+                            {
+                                $$ = cMul($1, $3, SHIFT-1);
+                                rpn_append("* ");
+                            }
+    | expTerm DIV expUnary
+                            {
+                                if (cMod($3, SHIFT-1) == 0) {
+                                    snprintf(errorMess, ERR_BUF, "Dzielenie przez zero w wykładniku");
+                                    YYABORT;
+                                }
+                                $$ = cDiv($1, $3, SHIFT-1);
+                                rpn_append("/ ");
+                            }
+    ;
+
+expUnary:
+      SUB expUnary %prec UMINUS
+                            {
+                                $$ = cSub(0, $2, SHIFT-1);
+                                rpn_append("neg ");
+                            }
+    | expAtom
+                            {
+                                $$ = $1;
+                            }
+    ;
+
+expAtom:
+      NUM
+                            {
+                                $$ = cMod($1, SHIFT-1);
+                                rpn_append_num($$);
+                            }
+    | '(' expNoPow ')'
+                            {
+                                $$ = $2;
+                            }
+    ;
+
 %%
 
 int yyerror(char const* s) {
-    if(strcmp(s, "syntax error") == 0 && strcmp(errorMess, "\0") == 0) {
-        strcpy(errorMess, "Błąd składniowy\n", 20);
+    if (strcmp(s, "syntax error") == 0 && errorMess[0] == '\0') {
+        snprintf(errorMess, ERR_BUF, "Błąd składniowy");
     }
     return 0;
 }
 
 int main(void) {
-    printf("Kalkulator - Notacja Odwrotna Polska (RPN)\n");
+    printf("Kalkulator - Notacja Odwrotna Polska (RPN) w GF(%d)\n", P);
     printf("Wpisz wyrażenie do obliczenia lub Ctrl+D aby zakończyć.\n");
     printf(">> ");
     return yyparse();
 }
-
-
-
-
